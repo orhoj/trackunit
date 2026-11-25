@@ -38,15 +38,14 @@ def registerOpenApiTask(String fileName, String apiName) {
 	def outDir = layout.buildDirectory.dir("generated/${apiName}")
 
 	def task = tasks.register(taskName, GenerateTask) {
-		generatorName.set("spring")
+		generatorName.set("java")
+		library.set("restclient")
 		inputSpec.set(layout.projectDirectory.file("src/main/resources/openapi/${fileName}").asFile.path)
 		outputDir.set(outDir.get().asFile.path)
-		// Update 'com.example.demo' to your root package name
-		apiPackage.set("com.example.demo.${apiName}.api")
-		modelPackage.set("com.example.demo.${apiName}.model")
+		apiPackage.set("com.orhoj.demo.${apiName}.api")
+		modelPackage.set("com.orhoj.demo.${apiName}.model")
+		invokerPackage.set("com.orhoj.demo.${apiName}.invoker")
 		configOptions.set([
-				interfaceOnly: "true",
-				useSpringBoot3: "true",
 				useJakartaEe: "true"
 		])
 	}
@@ -54,6 +53,7 @@ def registerOpenApiTask(String fileName, String apiName) {
 	sourceSets.main.java.srcDir(outDir.map { it.dir("src/main/java") })
 	tasks.named("compileJava") { dependsOn(task) }
 }
+
 
 registerOpenApiTask("hire-manager-openapi.yaml", "hiremanager")
 registerOpenApiTask("rental-api.json", "rentalapi")
