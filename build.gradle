@@ -1,7 +1,10 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.2.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.27.0'
 }
 
 group = 'com.orhoj.trackunit'
@@ -19,6 +22,9 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -26,3 +32,28 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+def registerOpenApiTask(String fileName, String apiName) {
+	def taskName = "generateOpenApi_${apiName}"
+	def outDir = layout.buildDirectory.dir("generated/${apiName}")
+
+	def task = tasks.register(taskName, GenerateTask) {
+		generatorName.set("spring")
+		inputSpec.set(layout.projectDirectory.file("src/main/resources/openapi/${fileName}").asFile.path)
+		outputDir.set(outDir.get().asFile.path)
+		// Update 'com.example.demo' to your root package name
+		apiPackage.set("com.example.demo.${apiName}.api")
+		modelPackage.set("com.example.demo.${apiName}.model")
+		configOptions.set([
+				interfaceOnly: "true",
+				useSpringBoot3: "true",
+				useJakartaEe: "true"
+		])
+	}
+
+	sourceSets.main.java.srcDir(outDir.map { it.dir("src/main/java") })
+	tasks.named("compileJava") { dependsOn(task) }
+}
+
+registerOpenApiTask("hire-manager-openapi.yaml", "hiremanager")
+registerOpenApiTask("rental-api.json", "rentalapi")

@@ -1,0 +1,593 @@
+openapi: 3.0.3
+info:
+  title: Bramble Hire Manager API
+  version: "3.2"
+  description: |
+    REST API for Bramble Hire Manager, the back-office system used by equipment
+    hire companies to manage their machines, hires and customer accounts.
+
+    This is the customer-facing integration API. It is read-only.
+
+    ## Getting started
+
+    Every Hire Manager installation is hosted by the hire company itself, so the
+    host name differs per customer. Call `POST /v3/login` to get a token and send
+    it as `Authorization: Bearer <token>` on every other request.
+
+    ## Dates and times
+
+    All dates and times are in the local time of the server that runs Hire Manager.
+    Values carry no offset and are not adjusted for daylight saving. The API does
+    not report which time zone the server uses.
+
+    Dates are written `YYYY-MM-DD`. Times of day are written `HH:mm`. A moment in
+    time that is sent as one value (for example `modifiedAt`) is written
+    `YYYY-MM-DD HH:mm:ss`.
+
+    ## Paging
+
+    List endpoints return one page at a time. Pages are numbered from 1. The
+    default page size is 20 and the maximum is 50. There is no `sort` parameter and
+    the order of items is not specified.
+
+    ## Limits
+
+    Each token may make up to 60 requests per minute. Requests above the limit get
+    `429` with a `Retry-After` header (seconds). Hire Manager runs a nightly
+    maintenance batch at 02:00 to 02:30 server time; during the batch requests may
+    get `503` with a `Retry-After` header.
+servers:
+  - url: https://{host}/api
+    variables:
+      host:
+        default: hire.example.invalid
+        description: Host name of the customer's Hire Manager installation.
+security:
+  - bearerAuth: []
+tags:
+  - name: Authentication
+  - name: Server
+  - name: Machines
+  - name: Hires
+  - name: Accounts
+paths:
+  /v3/login:
+    post:
+      tags: [Authentication]
+      operationId: login
+      summary: Get an access token
+      description: |
+        Exchanges credentials for an access token. The token is returned as the
+        plain response body (not JSON) and is valid for 5 minutes. There is no
+        refresh endpoint; call `login` again when the token has expired.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: The token, as plain text.
+          content:
+            text/plain:
+              schema:
+                type: string
+        "401":
+          description: Wrong user name or password.
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /v3/info:
+    get:
+      tags: [Server]
+      operationId: getInfo
+      summary: Server information
+      description: Returns the version of the API and of the Hire Manager installation.
+      responses:
+        "200":
+          description: Server information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /v3/machines:
+    get:
+      tags: [Machines]
+      operationId: listMachines
+      summary: List machines
+      description: |
+        Returns a page of machines from the machine register. The register holds
+        both machines that are rented out and machines that are held for sale.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - name: fleet
+          in: query
+          description: Restrict the list to one fleet.
+          schema:
+            type: string
+            enum: [HIRE, SALES, ALL]
+            default: ALL
+        - name: modifiedFrom
+          in: query
+          description: |
+            Only machines modified on or after this date. Format `YYYY-MM-DD`.
+            A time of day is not supported.
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: A page of machines.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MachinePage"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/Maintenance"
+  /v3/hires:
+    get:
+      tags: [Hires]
+      operationId: listHires
+      summary: List hires
+      description: |
+        Returns a page of hires, each with its lines and a short form of the
+        customer. Hires that have been deleted in Hire Manager are removed and are
+        no longer returned. Cancelled hires are kept.
+
+        A hire has a header (customer, site, dates) and one or more lines, one per
+        machine. Lines are edited on the Lines tab and are saved separately from the
+        header.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - name: kind
+          in: query
+          description: Restrict the list to hires or to quotations.
+          schema:
+            type: string
+            enum: [HIRE, QUOTE, ALL]
+            default: ALL
+        - name: stockNumber
+          in: query
+          description: Only hires that have at least one line for this stock number.
+          schema:
+            type: string
+        - name: modifiedFrom
+          in: query
+          description: |
+            Only hires whose header was saved at or after this moment, in server
+            time. Format `YYYY-MM-DD HH:mm:ss`.
+          schema:
+            type: string
+            example: "2026-03-01 08:30:00"
+      responses:
+        "200":
+          description: A page of hires.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hire"
+              example:
+                items:
+                  - hireId: 20417
+                    hireNumber: H-100231
+                    kind: HIRE
+                    state: CONFIRMED
+                    customer:
+                      accountNo: A-3301
+                      name: Northfield Groundworks Ltd
+                    depotCode: NORTH
+                    orderRef: PO-88213
+                    siteAddress:
+                      line1: 14 Quarry Lane
+                      city: Northfield
+                      postcode: ZZ1 4QL
+                      country: GB
+                    startDate: "2026-11-02"
+                    startTime: "08:00"
+                    dueBackDate: "2026-12-04"
+                    dueBackTime: "17:00"
+                    closedDate: null
+                    closedTime: null
+                    modifiedAt: "2026-11-02 07:41:10"
+                    lines:
+                      - lineNo: 1
+                        stockNumber: EX-0042
+                        startDate: "2026-11-02"
+                        startTime: "08:00"
+                        dueBackDate: "2026-12-04"
+                        dueBackTime: "17:00"
+                        returnedDate: null
+                        returnedTime: null
+                        pickupBooked: false
+                        ratePeriod: WEEK
+                        unitPrice: 540.0
+                page: 1
+                pageSize: 20
+                totalItems: 1
+                lastPage: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/Maintenance"
+  /v3/hires/{hireId}:
+    get:
+      tags: [Hires]
+      operationId: getHire
+      summary: Get one hire
+      description: Returns one hire with its lines.
+      parameters:
+        - name: hireId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The hire.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hire"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: No hire with this id.
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /v3/accounts:
+    get:
+      tags: [Accounts]
+      operationId: listAccounts
+      summary: List customer accounts
+      description: Returns a page of customer accounts.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - name: modifiedFrom
+          in: query
+          description: |
+            Only accounts saved at or after this moment, in server time. Format
+            `YYYY-MM-DD HH:mm:ss`.
+          schema:
+            type: string
+            example: "2026-03-01 08:30:00"
+      responses:
+        "200":
+          description: A page of accounts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountPage"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/Maintenance"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Page number, starting at 1.
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      description: Items per page. Maximum 50.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+  responses:
+    BadRequest:
+      description: A parameter is missing or has the wrong format.
+    Unauthorized:
+      description: The token is missing, invalid or has expired.
+    TooManyRequests:
+      description: Too many requests.
+      headers:
+        Retry-After:
+          description: Seconds to wait before the next request.
+          schema:
+            type: integer
+    Maintenance:
+      description: The nightly maintenance batch is running.
+      headers:
+        Retry-After:
+          description: Seconds to wait before the next request.
+          schema:
+            type: integer
+  schemas:
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    ServerInfo:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+          example: "3.2"
+        productVersion:
+          type: string
+          example: "11.4.0"
+        serverName:
+          type: string
+          example: BRAMBLE-HIRE-01
+    Page:
+      type: object
+      description: Common fields of every list response.
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+          description: Number of matching items when this page was read.
+        lastPage:
+          type: boolean
+    MachinePage:
+      allOf:
+        - $ref: "#/components/schemas/Page"
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Machine"
+    AccountPage:
+      allOf:
+        - $ref: "#/components/schemas/Page"
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Account"
+    Machine:
+      type: object
+      required: [machineId, stockNumber, fleet, state]
+      properties:
+        machineId:
+          type: integer
+          format: int64
+        stockNumber:
+          type: string
+          description: Internal stock number. Unique within the installation.
+          example: EX-0042
+        serialNumber:
+          type: string
+          nullable: true
+          description: Manufacturer serial number. Not always filled in.
+        categoryCode:
+          type: string
+          example: EXC-8T
+        make:
+          type: string
+        model:
+          type: string
+        fleet:
+          type: string
+          enum: [HIRE, SALES]
+        state:
+          type: string
+          enum: [IN_YARD, ON_HIRE, IN_WORKSHOP, SOLD]
+          description: |
+            Set by yard staff when a machine leaves or returns to the yard. It is
+            not calculated from hire data.
+        depotCode:
+          type: string
+          nullable: true
+        availableFrom:
+          type: string
+          format: date
+          nullable: true
+        disposedOn:
+          type: string
+          format: date
+          nullable: true
+        modifiedAt:
+          type: string
+          description: When the machine record was last saved. `YYYY-MM-DD HH:mm:ss`.
+    Hire:
+      type: object
+      required: [hireId, hireNumber, kind, state, customer, startDate, lines]
+      properties:
+        hireId:
+          type: integer
+          format: int64
+        hireNumber:
+          type: string
+          example: H-100231
+        kind:
+          type: string
+          enum: [HIRE, QUOTE]
+        state:
+          type: string
+          enum: [UNCONFIRMED, CONFIRMED, CANCELLED, CLOSED]
+          description: |
+            UNCONFIRMED: booked, not yet confirmed by the customer. CONFIRMED:
+            confirmed by the customer. CANCELLED: cancelled. CLOSED: all machines
+            have been returned and the hire is invoiced.
+        customer:
+          $ref: "#/components/schemas/HireCustomer"
+        depotCode:
+          type: string
+          nullable: true
+        orderRef:
+          type: string
+          nullable: true
+          description: The customer's own order or purchase order number.
+        siteAddress:
+          $ref: "#/components/schemas/Address"
+        startDate:
+          type: string
+          format: date
+        startTime:
+          type: string
+          nullable: true
+          description: Time of day, `HH:mm`.
+        dueBackDate:
+          type: string
+          format: date
+          nullable: true
+          description: Date the customer has agreed to return the machines.
+        dueBackTime:
+          type: string
+          nullable: true
+          description: Time of day, `HH:mm`.
+        closedDate:
+          type: string
+          format: date
+          nullable: true
+          description: Date the hire was closed.
+        closedTime:
+          type: string
+          nullable: true
+          description: Time of day, `HH:mm`.
+        modifiedAt:
+          type: string
+          description: When the hire header was last saved. `YYYY-MM-DD HH:mm:ss`.
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/HireLine"
+    HireLine:
+      type: object
+      required: [lineNo, stockNumber]
+      properties:
+        lineNo:
+          type: integer
+          description: Line number within the hire, starting at 1.
+        stockNumber:
+          type: string
+          description: |
+            Stock number of the machine on this line. Entered by the hire desk; in
+            older hires it is free text.
+        startDate:
+          type: string
+          format: date
+          nullable: true
+        startTime:
+          type: string
+          nullable: true
+          description: Time of day, `HH:mm`.
+        dueBackDate:
+          type: string
+          format: date
+          nullable: true
+        dueBackTime:
+          type: string
+          nullable: true
+          description: Time of day, `HH:mm`.
+        returnedDate:
+          type: string
+          format: date
+          nullable: true
+          description: Date this machine came back to the yard.
+        returnedTime:
+          type: string
+          nullable: true
+          description: Time of day, `HH:mm`.
+        pickupBooked:
+          type: boolean
+          description: A collection of this machine has been booked.
+        ratePeriod:
+          type: string
+          enum: [HOUR, DAY, WEEK, MONTH, FIXED]
+        unitPrice:
+          type: number
+          nullable: true
+          description: Price per rate period. The currency is the customer account's.
+    HireCustomer:
+      type: object
+      description: Short form of the customer. Full details are in the accounts list.
+      required: [accountNo]
+      properties:
+        accountNo:
+          type: string
+          example: A-3301
+        name:
+          type: string
+    Account:
+      type: object
+      required: [accountNo, name]
+      properties:
+        accountNo:
+          type: string
+        name:
+          type: string
+        accountType:
+          type: string
+          enum: [TRADE, PRIVATE, INTERNAL, SUPPLIER]
+        contact:
+          $ref: "#/components/schemas/Contact"
+        address:
+          $ref: "#/components/schemas/Address"
+        currencyCode:
+          type: string
+          description: ISO 4217 code.
+          example: GBP
+        modifiedAt:
+          type: string
+          description: When the account was last saved. `YYYY-MM-DD HH:mm:ss`.
+    Contact:
+      type: object
+      properties:
+        email:
+          type: string
+          nullable: true
+        telephone:
+          type: string
+          nullable: true
+        fax:
+          type: string
+          nullable: true
+    Address:
+      type: object
+      properties:
+        line1:
+          type: string
+        city:
+          type: string
+        postcode:
+          type: string
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 code.

@@ -1,0 +1,1457 @@
+openapi: 3.1.0
+info:
+  description: This API allows managing rental integrations.
+  title: Rental API
+  version: "1.0"
+externalDocs:
+  description: Trackunit Developer Hub
+  url: https://developers.trackunit.com/
+servers:
+- description: Endpoint for production
+  url: https://iris.trackunit.com/api/rental
+security:
+- authorizationBearer: []
+paths:
+  /v1/contract-items:
+    get:
+      description: Get contract items
+      operationId: getContractItems
+      parameters:
+      - description: Zero-based page index (0..N)
+        example: 0
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+          minimum: 0
+      - description: The size of the page to be returned
+        example: 20
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+          minimum: 1
+      - description: "Sort order: `property` (ascending by default), `+property` (ascending),\
+          \ `-property` (descending)."
+        in: query
+        name: sort
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: contractId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: |-
+          If true, fetches only active contract items (current time is between on and off rent date).
+          If false, fetches only inactive contract items (current time is before on rent date or after off rent date)
+          If not provided, fetches all contract items without filtering by active status.
+          If start or end interval defined - active filter not used.
+        in: query
+        name: active
+        required: false
+        schema:
+          type: boolean
+      - description: Items active after this date and time
+        example: 2018-02-17T11:46:00.000Z
+        in: query
+        name: start
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - description: Items active before this date and time
+        example: 2018-02-17T11:46:00.000Z
+        in: query
+        name: end
+        required: false
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedContractItemRepresentation"
+          description: Contract Items
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstraintViolationError"
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Invalid or missing bearer token in Authorization header
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: User not allowed to make this request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Internal server error
+      summary: Get Contract Items
+      tags:
+      - ContractItems
+  /v1/contract-items/{contractItemId}:
+    get:
+      description: Get contract item
+      operationId: getContractItem
+      parameters:
+      - in: path
+        name: contractItemId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractItemRepresentation"
+          description: Contract Item
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstraintViolationError"
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Invalid or missing bearer token in Authorization header
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: User not allowed to make this request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Internal server error
+      summary: Get Contract Item
+      tags:
+      - ContractItems
+  /v1/contracts:
+    get:
+      description: Get contracts
+      operationId: getContracts
+      parameters:
+      - description: Zero-based page index (0..N)
+        example: 0
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+          minimum: 0
+      - description: The size of the page to be returned
+        example: 20
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+          minimum: 1
+      - description: "Sort order: `property` (ascending by default), `+property` (ascending),\
+          \ `-property` (descending)."
+        in: query
+        name: sort
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - description: |-
+          If true, fetches only active contracts (current time is between start and end date).
+          If false, fetches only inactive contracts (current time is before start date or after end date)
+          If not provided, fetches all contracts without filtering by active status.
+          Ignored if start or end time is provided.
+        in: query
+        name: active
+        required: false
+        schema:
+          type: boolean
+      - description: Items active after this date and time
+        example: 2018-02-17T11:46:00.000Z
+        in: query
+        name: start
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - description: Items active before this date and time
+        example: 2018-02-17T11:46:00.000Z
+        in: query
+        name: end
+        required: false
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedContractRepresentation"
+                description: Get contracts
+          description: Contracts
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstraintViolationError"
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Invalid or missing bearer token in Authorization header
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: User not allowed to make this request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Internal server error
+      summary: Get Contracts
+      tags:
+      - Contracts
+  /v1/contracts/{contractId}:
+    get:
+      description: Get contract
+      operationId: getContract
+      parameters:
+      - description: Contract ID
+        example: 123e4567-e89b-12d3-a456-426614174000
+        in: path
+        name: contractId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractRepresentation"
+          description: Contract
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstraintViolationError"
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Invalid or missing bearer token in Authorization header
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: User not allowed to make this request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Internal server error
+      summary: Get Contract
+      tags:
+      - Contracts
+  /v1/synchronization:
+    post:
+      description: "This endpoint is used to synchronize rental data to link assets\
+        \ with contract data. If a match is found, the data is linked. If no match\
+        \ is found, the data is stored for future synchronization. The endpoint synchronize\
+        \ a single asset and related contracts, customers and contract items. Only\
+        \ assets owned by the authenticated account can be synchronized. If the account\
+        \ belongs to an organization, the account must be the organization owner to\
+        \ synchronize assets owned by the other accounts in that organization; a child\
+        \ account cannot synchronize assets owned by its parent account."
+      operationId: synchronize
+      parameters:
+      - description: "If true, the system will validate if the contract items are\
+          \ overlapping. If they are, the synchronization will fail."
+        in: header
+        name: X-Validate-Overlaping-Contract-Items
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - description: "Strategy for updating existing data (if external reference matches\
+          \ existing data it will be updated): \n* `REPLACE` - Replace synchronized\
+          \ data for the asset.\n* `APPEND` - Keep already synchronized information.\n"
+        example: APPEND
+        in: header
+        name: X-Update-Strategy
+        required: false
+        schema:
+          $ref: "#/components/schemas/UpdateStrategy"
+          default: APPEND
+      - description: "If true, the system will validate if the asset can be identified.\
+          \ If the asset is not found, the synchronization will fail. If false, the\
+          \ system will accept unmatched requests and store it for future synchronization."
+        in: header
+        name: X-Validate-Asset-Exists
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - description: "If true, the system will validate that no contract item has\
+          \ an off rent date before its on rent date. If one does, the synchronization\
+          \ will fail. If false, such a rental period is accepted and the sharing\
+          \ of the asset with the customer is stopped at the on rent date."
+        in: header
+        name: X-Validate-Rental-Period
+        required: false
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SynchronizationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SynchronizedRepresentation"
+          description: Data synchronized and matched successfully
+        "202":
+          description: "Data accepted. Asset was not matched with existing assets,\
+            \ but data is stored for future matching when assets are updated or added."
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstraintViolationError"
+          description: "Bad request. A malformed request body is reported with `violations`;\
+            \ a rejected value is reported with a `code`: `unsupported_field_value`,\
+            \ `duplicate_contract_item_external_references`, `invalid_rental_period`\
+            \ or `malformed_asset_identifier`. `duplicate_contract_item_external_references`\
+            \ covers both a reference repeated within the request and a reference\
+            \ already used by a contract item on another asset; neither is resolved\
+            \ by retrying, unlike the 409 conflict."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Invalid or missing bearer token in Authorization header
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: User not allowed to make this request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: "Asset was not found. Returned when X-Validate-Asset-Exists\
+            \ is 'true' and no asset owned by the authenticated account matches the\
+            \ supplied identifier. Note that only assets owned by the authenticated\
+            \ account can be synchronized: an asset owned by a parent account cannot\
+            \ be synchronized using a child account, even though that asset may be\
+            \ readable via the Asset API. The asset is resolved before the request\
+            \ body is validated, so this is returned even when the body also carries\
+            \ a rejected value."
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Conflict. The request lost a race with another concurrent synchronization
+            for the same external reference. Reported with the `code` `concurrent_synchronization_conflict`.
+            Retrying the request should resolve this.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Internal server error
+      summary: Synchronize rental data
+      tags:
+      - Synchronization
+  /v1/synchronization-contract:
+    post:
+      description: This endpoint is used to synchronize metadata about contracts already
+        in the system.
+      operationId: synchronize_2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractSynchronizationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SynchronizedContractRepresentation"
+          description: Data synchronized successfully
+        "202":
+          description: "Data accepted. Contract was not immediately matched, but data\
+            \ is stored for future synchronization"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstraintViolationError"
+          description: Bad request. A malformed request body is reported with `violations`;
+            a status outside the documented values is reported with the `code` `unsupported_field_value`.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Invalid or missing bearer token in Authorization header
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: User not allowed to make this request
+        "404":
+          description: "Data about contract not available. Nothing could be updated.\
+            \ The contract is resolved before the request body is validated, so this\
+            \ is returned even when the body also carries a rejected value."
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Internal server error
+      summary: Update contract
+      tags:
+      - Synchronization
+  /v1/synchronization-customer:
+    post:
+      description: Synchronize customer data
+      operationId: synchronize_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerSynchronizationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SynchronizedCustomerRepresentation"
+          description: Data synchronized successfully
+        "202":
+          description: "Data accepted. Customer was not immediately matched, but data\
+            \ is stored for future synchronization"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstraintViolationError"
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Invalid or missing bearer token in Authorization header
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: User not allowed to make this request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultError"
+          description: Internal server error
+      summary: Update customer
+      tags:
+      - Synchronization
+components:
+  schemas:
+    AddressRepresentation:
+      type: object
+      properties:
+        address:
+          type: string
+          description: The address
+          example: 123 Main St.
+        city:
+          type: string
+          description: The city
+          example: Springfield
+        country:
+          type: string
+          description: The country
+          example: United States of America
+        postalCode:
+          type: string
+          description: The postal code
+          example: "60031"
+    AllowedTimeInterval:
+      type: object
+      properties:
+        endTime:
+          type: string
+          description: The time of day the contract no longer allows using the asset.
+          example: 16:00
+        startTime:
+          type: string
+          description: The time of day the contract allows starting using the asset.
+          example: 07:00
+    ConstraintViolationError:
+      type: object
+      properties:
+        code:
+          type:
+          - string
+          - "null"
+          description: Alphanumeric code (snake case) describing use case specific
+            error
+        message:
+          type: string
+          description: Detailed description of error
+        properties:
+          type:
+          - object
+          - "null"
+          additionalProperties: {}
+          description: Additional properties to be included in the error response
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code
+        violations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Violation"
+    ContractBase:
+      type: object
+      properties:
+        contractNumber:
+          type: string
+          description: Number of the contract in the external system.
+          example: "0001222684"
+        endDate:
+          type: string
+          format: date-time
+          description: End date of the contract.
+          example: 2023-08-31T23:59:59Z
+        externalReference:
+          type: string
+          description: "Reference to the contract in an external system, i.e., an\
+            \ identifier of the item. Must be unique."
+          example: "68468"
+        orderNumber:
+          type: string
+          description: Order number or equivalent supplied by the customer.
+          example: "0001222684"
+        referenceCode:
+          type: string
+          description: Reference code provided by the customer.
+          example: "0001222684"
+        referenceCodeDescription:
+          type: string
+          description: Reference code description provided by the customer.
+          example: "0001222684"
+        startDate:
+          type: string
+          format: date-time
+          description: Start date of the contract.
+          example: 2021-08-01T00:00:00Z
+        status:
+          type: string
+          description: "Status of the contract. Requests must use one of OPEN, RESERVED,\
+            \ CANCELLED, COMPLETED. Trackunit may add values over time."
+          example: OPEN
+          x-extensible-enum:
+          - OPEN
+          - RESERVED
+          - CANCELLED
+          - COMPLETED
+        timeZone:
+          type: string
+          description: "Time zone of the contract dates represented as an IANA ZoneId\
+            \ (e.g., Europe/Copenhagen)."
+          example: Europe/Copenhagen
+      required:
+      - externalReference
+      - startDate
+      - status
+    ContractItemRepresentation:
+      type: object
+      properties:
+        assetId:
+          type: string
+          format: uuid
+          description: Id of the asset
+          example: 123e4567-e89b-12d3-a456-426614174000
+        contractId:
+          type: string
+          format: uuid
+          description: Id of the contract
+          example: 123e4567-e89b-12d3-a456-426614174000
+        deliveryAddress:
+          $ref: "#/components/schemas/AddressRepresentation"
+          description: Address of item delivery
+        externalReference:
+          type: string
+          description: "Reference to the contract item in an external system, i.e.,\
+            \ an identifier of the item. Must be unique."
+          example: 605P1600003
+        id:
+          type: string
+          format: uuid
+          description: ID of the contract item
+          example: 123e4567-e89b-12d3-a456-426614174000
+        offRentDate:
+          type: string
+          format: date-time
+          description: End of the rental period of the item
+          example: 2021-08-31T23:59:59Z
+        onRentDate:
+          type: string
+          format: date-time
+          description: Start of the rental period of the item
+          example: 2021-08-01T00:00:00Z
+        pickupAddress:
+          $ref: "#/components/schemas/AddressRepresentation"
+          description: Address of item pickup
+        rentalRate:
+          $ref: "#/components/schemas/RentalRateRepresentation"
+          description: Rental rate for the item
+        scheduledDeliveryDate:
+          type: string
+          format: date-time
+          description: Time of item delivery
+          example: 2021-08-01T00:00:00Z
+        scheduledPickupDate:
+          type: string
+          format: date-time
+          description: Time of item pickup
+          example: 2021-09-30T10:00:00Z
+      required:
+      - assetId
+      - contractId
+      - externalReference
+      - id
+    ContractRepresentation:
+      type: object
+      properties:
+        contractNumber:
+          type: string
+          description: Number of the contract in the external system. Use this if
+            the contract number is not a unique identifier. Otherwise using the external
+            reference will be sufficient.
+          example: "0001222684"
+        customerId:
+          type: string
+          format: uuid
+          description: Rentee customer
+          example: 123e4567-e89b-12d3-a456-426614174000
+        endDate:
+          type: string
+          format: date-time
+          description: End date of the contract
+          example: 2021-08-31T23:59:59Z
+        externalReference:
+          type: string
+          description: "Reference to the contract in an external system, i.e., an\
+            \ identifier of the item. Must be unique."
+          example: "123456"
+        hiringDepotId:
+          type: string
+          format: uuid
+          description: Hiring depot
+          example: c6f1ffe6-12f6-454c-88d1-bca64cfeebb4
+        id:
+          type: string
+          format: uuid
+          description: The ID in the Trackunit system. Used for updating items. Ignored
+            when creating items
+          example: 0c9b147a-d0e3-4d93-bc10-ed4d8037e6a3
+        orderNumber:
+          type: string
+          description: Order number or equivalent supplied by the customer.
+          example: "0001222684"
+        referenceCode:
+          type: string
+          description: Reference code provided by the customer.
+          example: "0001222684"
+        referenceCodeDescription:
+          type: string
+          description: Reference code description provided by the customer.
+          example: "0001222684"
+        startDate:
+          type: string
+          format: date-time
+          description: Start date of the contract
+          example: 2021-08-01T00:00:00Z
+        status:
+          type: string
+          description: Status of the contract
+          example: CANCELLED
+          x-extensible-enum:
+          - OPEN
+          - RESERVED
+          - CANCELLED
+          - COMPLETED
+      required:
+      - customerId
+      - externalReference
+      - id
+      - status
+    ContractSynchronizationRequest:
+      type: object
+      properties:
+        contract:
+          $ref: "#/components/schemas/ContractBase"
+      required:
+      - contract
+    CustomerSynchronizationRequest:
+      type: object
+      properties:
+        customer:
+          $ref: "#/components/schemas/SyncCustomer"
+      required:
+      - customer
+    DefaultError:
+      type: object
+      properties:
+        code:
+          type:
+          - string
+          - "null"
+          description: Alphanumeric code (snake case) describing use case specific
+            error
+        message:
+          type: string
+          description: Detailed description of error
+        properties:
+          type:
+          - object
+          - "null"
+          additionalProperties: {}
+          description: Additional properties to be included in the error response
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code
+    PaginatedContractItemRepresentation:
+      type: object
+      properties:
+        content:
+          type: array
+          description: The page content as a list.
+          items:
+            $ref: "#/components/schemas/ContractItemRepresentation"
+        number:
+          type: integer
+          format: int32
+          description: The number of the current page.
+        numberOfElements:
+          type: integer
+          format: int32
+          description: The number of elements currently on this page.
+        size:
+          type: integer
+          format: int32
+          description: The size of the page.
+        totalElements:
+          type: integer
+          format: int64
+          description: The total number of elements.
+        totalPages:
+          type: integer
+          format: int32
+          description: The number of total pages.
+    PaginatedContractRepresentation:
+      type: object
+      properties:
+        content:
+          type: array
+          description: The page content as a list.
+          items:
+            $ref: "#/components/schemas/ContractRepresentation"
+        number:
+          type: integer
+          format: int32
+          description: The number of the current page.
+        numberOfElements:
+          type: integer
+          format: int32
+          description: The number of elements currently on this page.
+        size:
+          type: integer
+          format: int32
+          description: The size of the page.
+        totalElements:
+          type: integer
+          format: int64
+          description: The total number of elements.
+        totalPages:
+          type: integer
+          format: int32
+          description: The number of total pages.
+    RentalRateRepresentation:
+      type: object
+      properties:
+        allowedDays:
+          $ref: "#/components/schemas/WeekRepresentation"
+          description: Days of the week the asset is allowed to be used
+        allowedTimeInterval:
+          $ref: "#/components/schemas/AllowedTimeInterval"
+          description: Represents a time interval during which an asset is allowed
+            to be used
+        currency:
+          type: string
+          description: Currency value of the unitPrice - ISO 4217 compliant.
+          example: GBP
+          x-extensible-enum:
+          - AED
+          - AFN
+          - ALL
+          - AMD
+          - ANG
+          - AOA
+          - ARS
+          - AWG
+          - AUD
+          - AZN
+          - BAM
+          - BBD
+          - BDT
+          - BHD
+          - BIF
+          - BMD
+          - BND
+          - BOB
+          - BRL
+          - BSD
+          - BTN
+          - BWP
+          - BYN
+          - BZD
+          - CAD
+          - CDF
+          - CHF
+          - CLP
+          - CNY
+          - COP
+          - CRC
+          - CUP
+          - CVE
+          - CZK
+          - DJF
+          - DKK
+          - DOP
+          - DZD
+          - EGP
+          - ERN
+          - ETB
+          - EUR
+          - FJD
+          - FKP
+          - GBP
+          - GEL
+          - GHS
+          - GIP
+          - GMD
+          - GNF
+          - GTQ
+          - GYD
+          - HKD
+          - HNL
+          - HTG
+          - HUF
+          - IDR
+          - ILS
+          - INR
+          - IQD
+          - IRR
+          - ISK
+          - JMD
+          - JOD
+          - JPY
+          - KES
+          - KGS
+          - KHR
+          - KMF
+          - KPW
+          - KRW
+          - KWD
+          - KYD
+          - KZT
+          - LAK
+          - LBP
+          - LKR
+          - LRD
+          - LSL
+          - LYD
+          - MAD
+          - MDL
+          - MGA
+          - MKD
+          - MMK
+          - MNT
+          - MOP
+          - MRU
+          - MUR
+          - MVR
+          - MWK
+          - MXN
+          - MYR
+          - MZN
+          - NAD
+          - NGN
+          - NIO
+          - NOK
+          - NPR
+          - NZD
+          - OMR
+          - PAB
+          - PEN
+          - PGK
+          - PHP
+          - PKR
+          - PLN
+          - PYG
+          - QAR
+          - RON
+          - RSD
+          - RUB
+          - RWF
+          - SAR
+          - SBD
+          - SCR
+          - SDG
+          - SEK
+          - SGD
+          - SHP
+          - SLE
+          - SOS
+          - SRD
+          - SSP
+          - STN
+          - SVC
+          - SYP
+          - SZL
+          - THB
+          - TJS
+          - TMT
+          - TND
+          - TOP
+          - TRY
+          - TTD
+          - TWD
+          - TZS
+          - UAH
+          - UGX
+          - USD
+          - UYU
+          - UZS
+          - VES
+          - VND
+          - VUV
+          - WST
+          - XAF
+          - XAG
+          - XAU
+          - XCD
+          - XCG
+          - XOF
+          - XPD
+          - XPF
+          - XPT
+          - XTS
+          - XXX
+          - YER
+          - ZAR
+          - ZMW
+          - ZWG
+        dailyLimit:
+          type: number
+          format: float
+          description: Maximum allowed operating hours per day
+          maximum: 24.0
+          minimum: 0.0
+        interval:
+          type: string
+          description: "The interval at which the rate applies. Requests must use\
+            \ one of HOURLY, DAILY, WEEKLY, MONTHLY, FIXED. Trackunit may add values\
+            \ over time."
+          example: DAILY
+          x-extensible-enum:
+          - HOURLY
+          - DAILY
+          - WEEKLY
+          - MONTHLY
+          - FIXED
+        unitPrice:
+          type: number
+          description: The price for the interval.
+          example: 100.0
+        weeklyLimit:
+          type: number
+          format: float
+          description: Maximum allowed operating hours per week
+          maximum: 168.0
+          minimum: 0.0
+      required:
+      - interval
+    SyncAsset:
+      type: object
+      properties:
+        contractItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/SyncContractItem"
+        identifier:
+          type: string
+          description: "Identifier of the asset in the Iris platform, e.g. VIN or\
+            \ ExternalReference"
+          example: "1234567890"
+          minLength: 1
+        identifierType:
+          type: string
+          description: "Type of identifier. Available types are SERIAL_NUMBER, ASSET_ID\
+            \ and EXTERNAL_REFERENCE. New types may be added."
+          example: SERIAL_NUMBER
+          x-extensible-enum:
+          - SERIAL_NUMBER
+          - ASSET_ID
+          - EXTERNAL_REFERENCE
+        status:
+          type: string
+          description: |-
+            Status of the asset. Null value means that the asset should be deleted from the rental domain along with all contract items that are associated with it.
+            Requests must use one of ON_RENT, PICK_UP_READY, AVAILABLE, RETURNED, IN_REPAIR, TRANSFER, OTHER, OFF_RENT, NOT_ON_CONTRACT, RESERVED. Trackunit may add values over time.
+          example: ON_RENT
+          x-extensible-enum:
+          - ON_RENT
+          - PICK_UP_READY
+          - AVAILABLE
+          - RETURNED
+          - IN_REPAIR
+          - TRANSFER
+          - OTHER
+          - OFF_RENT
+          - NOT_ON_CONTRACT
+          - RESERVED
+      required:
+      - contractItems
+      - identifier
+      - identifierType
+    SyncContract:
+      type: object
+      properties:
+        contractNumber:
+          type: string
+          description: Number of the contract in the external system.
+          example: "0001222684"
+        customer:
+          $ref: "#/components/schemas/SyncCustomer"
+        endDate:
+          type: string
+          format: date-time
+          description: End date of the contract.
+          example: 2023-08-31T23:59:59Z
+        externalReference:
+          type: string
+          description: "Reference to the contract in an external system, i.e., an\
+            \ identifier of the item. Must be unique."
+          example: "68468"
+        hiringDepot:
+          $ref: "#/components/schemas/SyncDepot"
+        orderNumber:
+          type: string
+          description: Order number or equivalent supplied by the customer.
+          example: "0001222684"
+        referenceCode:
+          type: string
+          description: Reference code provided by the customer.
+          example: "0001222684"
+        referenceCodeDescription:
+          type: string
+          description: Reference code description provided by the customer.
+          example: "0001222684"
+        startDate:
+          type: string
+          format: date-time
+          description: Start date of the contract.
+          example: 2021-08-01T00:00:00Z
+        status:
+          type: string
+          description: "Status of the contract. Requests must use one of OPEN, RESERVED,\
+            \ CANCELLED, COMPLETED. Trackunit may add values over time."
+          example: OPEN
+          x-extensible-enum:
+          - OPEN
+          - RESERVED
+          - CANCELLED
+          - COMPLETED
+        timeZone:
+          type: string
+          description: "Time zone of the contract dates represented as an IANA ZoneId\
+            \ (e.g., Europe/Copenhagen)."
+          example: Europe/Copenhagen
+      required:
+      - customer
+      - externalReference
+      - startDate
+      - status
+    SyncContractItem:
+      type: object
+      properties:
+        contract:
+          $ref: "#/components/schemas/SyncContract"
+        deliveryAddress:
+          $ref: "#/components/schemas/AddressRepresentation"
+          description: Address of item delivery
+        externalReference:
+          type: string
+          description: "Reference to the contract item in an external system, i.e.,\
+            \ an identifier of the item. Must be unique."
+          example: 605P1600003
+        offRentDate:
+          type: string
+          format: date-time
+          description: End of the rental period of the item
+          example: 2021-08-31T23:59:59Z
+        onRentDate:
+          type: string
+          format: date-time
+          description: Start of the rental period of the item
+          example: 2021-08-01T00:00:00Z
+        pickupAddress:
+          $ref: "#/components/schemas/AddressRepresentation"
+          description: Address of item pickup
+        rentalRate:
+          $ref: "#/components/schemas/RentalRateRepresentation"
+          description: Rental rate for the item
+        scheduledDeliveryDate:
+          type: string
+          format: date-time
+          description: Time of item delivery
+          example: 2021-08-01T00:00:00Z
+        scheduledPickupDate:
+          type: string
+          format: date-time
+          description: Time of item pickup
+          example: 2021-09-30T10:00:00Z
+      required:
+      - contract
+      - externalReference
+      - onRentDate
+    SyncCustomer:
+      type: object
+      description: |
+        The customer the contract belongs to. Customers are upserted as part of synchronization: the customer is matched on externalReference, created if no match exists, and updated from this payload if one does.
+
+        Required fields overwrite stored values. Optional fields: if this customer has already been synchronized, omitting a field keeps the last value sent through this API. If the customer already exists from the Customer API and has not been synchronized yet, omitting a field clears the stored value.
+      properties:
+        address:
+          type: "null"
+          $ref: "#/components/schemas/AddressRepresentation"
+          description: Address of the customer
+        email:
+          type: string
+          format: email
+          description: Email of the customer
+          example: email@domain.com
+          maxLength: 255
+        externalReference:
+          type: string
+          description: External identifier of the customer in the Iris platform
+        fax:
+          type: string
+          description: Fax of the customer
+          example: "+4512345678"
+          maxLength: 255
+          minLength: 0
+        name:
+          type: string
+          description: Name of the customer
+          example: Thomas Anderson
+          maxLength: 255
+          minLength: 1
+          pattern: "[^\\t\\r\\n\\f]+"
+        phone:
+          type: string
+          description: Phone of the customer
+          example: "+4512345678"
+          maxLength: 255
+          minLength: 0
+        type:
+          type: string
+          description: Type of customer
+          enum:
+          - CONTRACTOR
+          - DEALER
+          - DISTRIBUTOR
+          - OEM
+          - RENTAL
+          - SERVICE
+          - OTHER
+          example: CONTRACTOR
+      required:
+      - externalReference
+      - name
+      - type
+    SyncDepot:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: "Identifier of the depot in the Iris platform, e.g. id or ExternalReference"
+          example: "1234567890"
+        identifierType:
+          type: string
+          description: Type of identifier. Available types are DEPOT_ID and EXTERNAL_REFERENCE.
+            New types may be added.
+          example: EXTERNAL_REFERENCE
+          x-extensible-enum:
+          - DEPOT_ID
+          - EXTERNAL_REFERENCE
+      required:
+      - identifier
+      - identifierType
+    SynchronizationRequest:
+      type: object
+      properties:
+        asset:
+          $ref: "#/components/schemas/SyncAsset"
+          description: The asset to synchronize
+      required:
+      - asset
+    SynchronizedAsset:
+      type: object
+      properties:
+        assetId:
+          type: string
+          format: uuid
+          description: Id of the synchronized asset in the Iris platform
+          example: 123e4567-e89b-12d3-a456-426614174000
+        contractItems:
+          type: array
+          description: The contract items associated with the synchronized asset
+          items:
+            $ref: "#/components/schemas/SynchronizedContractItem"
+        identifier:
+          type: string
+          description: "Identifier of the synchronized asset in the Iris platform,\
+            \ e.g. VIN or ExternalReference"
+          example: "1234567890"
+      required:
+      - assetId
+      - contractItems
+      - identifier
+    SynchronizedContract:
+      type: object
+      properties:
+        contractId:
+          type: string
+          format: uuid
+          description: Id of the synchronized contract in the Iris platform
+          example: 123e4567-e89b-12d3-a456-426614174000
+        externalReference:
+          type: string
+          description: Reference to the contract in an external system
+          example: "1234567890"
+      required:
+      - contractId
+      - externalReference
+    SynchronizedContractItem:
+      type: object
+      properties:
+        contract:
+          $ref: "#/components/schemas/SynchronizedContractWithCustomer"
+          description: The contract associated with the synchronized contract item
+        contractItemId:
+          type: string
+          format: uuid
+          description: Id of the synchronized contract item in the Iris platform
+          example: 123e4567-e89b-12d3-a456-426614174000
+        externalReference:
+          type: string
+          description: Reference to the contract item in an external system
+          example: "1234567890"
+      required:
+      - contract
+      - contractItemId
+      - externalReference
+    SynchronizedContractRepresentation:
+      type: object
+      properties:
+        contract:
+          $ref: "#/components/schemas/SynchronizedContract"
+      required:
+      - contract
+    SynchronizedContractWithCustomer:
+      type: object
+      properties:
+        contractId:
+          type: string
+          format: uuid
+          description: Id of the synchronized contract in the Iris platform
+          example: 123e4567-e89b-12d3-a456-426614174000
+        customer:
+          $ref: "#/components/schemas/SynchronizedCustomer"
+          description: The customer associated with the synchronized contract
+        externalReference:
+          type: string
+          description: Reference to the contract in an external system
+          example: "1234567890"
+      required:
+      - contractId
+      - customer
+      - externalReference
+    SynchronizedCustomer:
+      type: object
+      properties:
+        customerId:
+          type: string
+          format: uuid
+          description: Id of the synchronized customer in the Iris platform
+          example: 123e4567-e89b-12d3-a456-426614174000
+        externalReference:
+          type: string
+          description: Reference to the customer in an external system
+          example: "1234567890"
+      required:
+      - customerId
+      - externalReference
+    SynchronizedCustomerRepresentation:
+      type: object
+      properties:
+        customer:
+          $ref: "#/components/schemas/SynchronizedCustomer"
+          description: The customer associated with the synchronized contract
+      required:
+      - customer
+    SynchronizedRepresentation:
+      type: object
+      properties:
+        asset:
+          $ref: "#/components/schemas/SynchronizedAsset"
+          description: The asset to synchronize
+      required:
+      - asset
+    UpdateStrategy:
+      type: string
+      description: "Strategy for updating existing data (if external reference matches\
+        \ existing data it will be updated): \n* `REPLACE` - Replace synchronized\
+        \ data for the asset.\n* `APPEND` - Keep already synchronized information.\n"
+      enum:
+      - REPLACE
+      - APPEND
+    Violation:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    WeekRepresentation:
+      type: object
+      properties:
+        friday:
+          type: boolean
+        monday:
+          type: boolean
+        saturday:
+          type: boolean
+        sunday:
+          type: boolean
+        thursday:
+          type: boolean
+        tuesday:
+          type: boolean
+        wednesday:
+          type: boolean
+  securitySchemes:
+    authorizationBearer:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
