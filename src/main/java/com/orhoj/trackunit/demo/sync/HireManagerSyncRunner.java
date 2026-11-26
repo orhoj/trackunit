@@ -3,6 +3,8 @@ package com.orhoj.trackunit.demo.sync;
 import com.orhoj.demo.hiremanager.model.Account;
 import com.orhoj.demo.hiremanager.model.Hire;
 import com.orhoj.demo.hiremanager.model.Machine;
+import com.orhoj.demo.rentalapi.model.SynchronizationRequest;
+import com.orhoj.trackunit.demo.mapper.HireToRentalMapper;
 import com.orhoj.trackunit.demo.service.HireManagerClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +22,15 @@ public class HireManagerSyncRunner implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(HireManagerSyncRunner.class);
 
     private final HireManagerClientService clientService;
+    private final HireToRentalMapper mapper;
     private final ApplicationContext context;
 
-    public HireManagerSyncRunner(HireManagerClientService clientService, ApplicationContext context) {
+    public HireManagerSyncRunner(
+            HireManagerClientService clientService,
+            HireToRentalMapper mapper,
+            ApplicationContext context) {
         this.clientService = clientService;
+        this.mapper = mapper;
         this.context = context;
     }
 
@@ -39,7 +46,8 @@ public class HireManagerSyncRunner implements ApplicationRunner {
         log.info("Fetched: machines={} hires={} accounts={}",
                 machines.size(), hires.size(), accounts.size());
 
-        // TODO Map to Trackunit SynchronizationRequest objects.
+        List<SynchronizationRequest> syncRequests = mapper.mapAll(machines, hires, accounts);
+        log.info("Mapped {} SynchronizationRequest(s)", syncRequests.size());
 
         // TODO Output dry-run JSONL file.
         if (isDryRun) {
