@@ -1,7 +1,7 @@
 {
   "page": 1,
   "pageSize": 50,
-  "totalItems": 1,
+  "totalItems": 2,
   "lastPage": true,
   "items": [
     {
@@ -21,6 +21,24 @@
       },
       "currencyCode": "GBP",
       "modifiedAt": "2026-10-12 14:00:00"
+    },
+    {
+      "accountNo": "A-4410",
+      "name": "Jane Doe",
+      "accountType": "PRIVATE",
+      "contact": {
+        "email": "jane.doe@example.com",
+        "telephone": "+44 7700 900456",
+        "fax": null
+      },
+      "address": {
+        "line1": "8 Meadow Close",
+        "city": "Leeds",
+        "postcode": "LS1 2AB",
+        "country": "GB"
+      },
+      "currencyCode": "GBP",
+      "modifiedAt": "2026-11-10 09:10:00"
     }
   ]
 }

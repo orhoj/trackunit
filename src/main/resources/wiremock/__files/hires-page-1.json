@@ -1,7 +1,7 @@
 {
   "page": 1,
   "pageSize": 50,
-  "totalItems": 1,
+  "totalItems": 4,
   "lastPage": true,
   "items": [
     {
@@ -41,6 +41,126 @@
           "pickupBooked": false,
           "ratePeriod": "WEEK",
           "unitPrice": 540.0
+        }
+      ]
+    },
+    {
+      "hireId": 20450,
+      "hireNumber": "H-100299",
+      "kind": "HIRE",
+      "state": "CONFIRMED",
+      "customer": {
+        "accountNo": "A-4410",
+        "name": "Jane Doe"
+      },
+      "depotCode": "NORTH",
+      "orderRef": null,
+      "siteAddress": {
+        "line1": "8 Meadow Close",
+        "city": "Leeds",
+        "postcode": "LS1 2AB",
+        "country": "GB"
+      },
+      "startDate": "2026-11-10",
+      "startTime": null,
+      "dueBackDate": null,
+      "dueBackTime": null,
+      "closedDate": null,
+      "closedTime": null,
+      "modifiedAt": "2026-11-10 09:12:00",
+      "lines": [
+        {
+          "lineNo": 1,
+          "stockNumber": "DM-0105",
+          "startDate": null,
+          "startTime": null,
+          "dueBackDate": null,
+          "dueBackTime": null,
+          "returnedDate": null,
+          "returnedTime": null,
+          "pickupBooked": false,
+          "ratePeriod": "WEEK",
+          "unitPrice": 320.0
+        }
+      ]
+    },
+    {
+      "hireId": 20501,
+      "hireNumber": "H-100310",
+      "kind": "HIRE",
+      "state": "UNCONFIRMED",
+      "customer": {
+        "accountNo": "A-3301",
+        "name": "Northfield Groundworks Ltd"
+      },
+      "depotCode": "SOUTH",
+      "orderRef": "PO-90012",
+      "siteAddress": {
+        "line1": "Docklands Phase 2",
+        "city": "Bristol",
+        "postcode": "BS1 5TR",
+        "country": "GB"
+      },
+      "startDate": "2026-12-20",
+      "startTime": "07:30",
+      "dueBackDate": "2027-01-15",
+      "dueBackTime": "16:30",
+      "closedDate": null,
+      "closedTime": null,
+      "modifiedAt": "2026-11-25 15:00:00",
+      "lines": [
+        {
+          "lineNo": 1,
+          "stockNumber": "GN-0210",
+          "startDate": "2026-12-20",
+          "startTime": "07:30",
+          "dueBackDate": "2027-01-15",
+          "dueBackTime": "16:30",
+          "returnedDate": null,
+          "returnedTime": null,
+          "pickupBooked": false,
+          "ratePeriod": "MONTH",
+          "unitPrice": 1400.0
+        }
+      ]
+    },
+    {
+      "hireId": 20505,
+      "hireNumber": "Q-50012",
+      "kind": "QUOTE",
+      "state": "UNCONFIRMED",
+      "customer": {
+        "accountNo": "A-3301",
+        "name": "Northfield Groundworks Ltd"
+      },
+      "depotCode": "NORTH",
+      "orderRef": null,
+      "siteAddress": {
+        "line1": "14 Quarry Lane",
+        "city": "Northfield",
+        "postcode": "ZZ1 4QL",
+        "country": "GB"
+      },
+      "startDate": "2026-11-25",
+      "startTime": "08:00",
+      "dueBackDate": "2026-12-05",
+      "dueBackTime": "17:00",
+      "closedDate": null,
+      "closedTime": null,
+      "modifiedAt": "2026-11-24 10:00:00",
+      "lines": [
+        {
+          "lineNo": 1,
+          "stockNumber": "GN-0210",
+          "startDate": "2026-11-25",
+          "startTime": "08:00",
+          "dueBackDate": "2026-12-05",
+          "dueBackTime": "17:00",
+          "returnedDate": null,
+          "returnedTime": null,
+          "pickupBooked": false,
+          "ratePeriod": "WEEK",
+          "unitPrice": 400.0
         }
       ]
     }

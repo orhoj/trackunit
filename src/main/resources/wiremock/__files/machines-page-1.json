@@ -1,7 +1,7 @@
 {
   "page": 1,
   "pageSize": 50,
-  "totalItems": 1,
+  "totalItems": 4,
   "lastPage": true,
   "items": [
     {
@@ -17,6 +17,48 @@
       "availableFrom": "2024-01-15",
       "disposedOn": null,
       "modifiedAt": "2026-11-20 09:15:00"
+    },
+    {
+      "machineId": 1002,
+      "stockNumber": "DM-0105",
+      "serialNumber": null,
+      "categoryCode": "DMP-6T",
+      "make": "Thwaites",
+      "model": "6 Tonne",
+      "fleet": "HIRE",
+      "state": "IN_YARD",
+      "depotCode": "NORTH",
+      "availableFrom": "2024-03-01",
+      "disposedOn": null,
+      "modifiedAt": "2026-11-25 14:22:10"
+    },
+    {
+      "machineId": 1003,
+      "stockNumber": "GN-0210",
+      "serialNumber": "FGW-44102",
+      "categoryCode": "GEN-60KVA",
+      "make": "FG Wilson",
+      "model": "P65-5",
+      "fleet": "HIRE",
+      "state": "IN_YARD",
+      "depotCode": "NORTH",
+      "availableFrom": "2025-02-01",
+      "disposedOn": null,
+      "modifiedAt": "2026-11-18 11:30:00"
+    },
+    {
+      "machineId": 1004,
+      "stockNumber": "SL-9001",
+      "serialNumber": "KUB-KX019-551",
+      "categoryCode": "EXC-2T",
+      "make": "Kubota",
+      "model": "KX019-4",
+      "fleet": "SALES",
+      "state": "IN_YARD",
+      "depotCode": "SOUTH",
+      "availableFrom": null,
+      "disposedOn": null,
+      "modifiedAt": "2026-11-01 10:00:00"
     }
   ]
 }
