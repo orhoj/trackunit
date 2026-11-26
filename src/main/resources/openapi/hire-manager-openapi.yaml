@@ -178,7 +178,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Hire"
+                $ref: "#/components/schemas/HirePage"
               example:
                 items:
                   - hireId: 20417
@@ -380,6 +380,15 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Account"
+    HirePage:
+      allOf:
+        - $ref: "#/components/schemas/Page"
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Hire"
     Machine:
       type: object
       required: [machineId, stockNumber, fleet, state]
