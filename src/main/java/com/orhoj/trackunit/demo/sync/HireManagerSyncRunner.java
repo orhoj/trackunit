@@ -14,6 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
 import java.util.List;
 
 @Component
@@ -23,14 +24,17 @@ public class HireManagerSyncRunner implements ApplicationRunner {
 
     private final HireManagerClientService clientService;
     private final HireToRentalMapper mapper;
+    private final DryRunWriter dryRunWriter;
     private final ApplicationContext context;
 
     public HireManagerSyncRunner(
             HireManagerClientService clientService,
             HireToRentalMapper mapper,
+            DryRunWriter dryRunWriter,
             ApplicationContext context) {
         this.clientService = clientService;
         this.mapper = mapper;
+        this.dryRunWriter = dryRunWriter;
         this.context = context;
     }
 
@@ -49,10 +53,16 @@ public class HireManagerSyncRunner implements ApplicationRunner {
         List<SynchronizationRequest> syncRequests = mapper.mapAll(machines, hires, accounts);
         log.info("Mapped {} SynchronizationRequest(s)", syncRequests.size());
 
-        // TODO Output dry-run JSONL file.
         if (isDryRun) {
-            // Exit straight after dry-run.
+            Path outputPath = Path.of("dry-run-output.jsonl");
+            dryRunWriter.write(outputPath, syncRequests);
+            log.info("Wrote {} synchronization request(s) to {}", syncRequests.size(), outputPath.toAbsolutePath());
+
             SpringApplication.exit(context, () -> 0);
+        } else {
+            // TODO Implement live POST /v1/synchronization call (with all the bells and whistles [retry, rate limit
+            // handling etc.]).
+            log.error("Live sync mode has not been implemented yet. Run with --dry-run");
         }
     }
 }
