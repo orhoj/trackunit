@@ -1,6 +1,9 @@
 package com.orhoj.trackunit.demo.sync;
 
-import com.orhoj.demo.hiremanager.api.HiresApi;
+import com.orhoj.demo.hiremanager.model.Account;
+import com.orhoj.demo.hiremanager.model.Hire;
+import com.orhoj.demo.hiremanager.model.Machine;
+import com.orhoj.trackunit.demo.service.HireManagerClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -9,13 +12,18 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class HireManagerSyncRunner implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(HireManagerSyncRunner.class);
+
+    private final HireManagerClientService clientService;
     private final ApplicationContext context;
 
-    public HireManagerSyncRunner(HiresApi hiresApi, ApplicationContext context) {
+    public HireManagerSyncRunner(HireManagerClientService clientService, ApplicationContext context) {
+        this.clientService = clientService;
         this.context = context;
     }
 
@@ -24,7 +32,12 @@ public class HireManagerSyncRunner implements ApplicationRunner {
         boolean isDryRun = args.containsOption("dry-run");
         log.info("Starting Hire Sync (dryRun={})", isDryRun);
 
-        // TODO Fetch data from hire manager API
+        List<Machine> machines = clientService.fetchAllMachines();
+        List<Hire> hires = clientService.fetchAllHires();
+        List<Account> accounts = clientService.fetchAllAccounts();
+
+        log.info("Fetched: machines={} hires={} accounts={}",
+                machines.size(), hires.size(), accounts.size());
 
         // TODO Map to Trackunit SynchronizationRequest objects.
 
