@@ -5,6 +5,14 @@
 ### Dry-run mode against embedded WireMock stub
 The local profile starts an embedded WireMock server on http://localhost:8089 serving stubbed responses from src/main/resources/wiremock/.
 
+You need a `application-local.properties` file next to `application.properties` in `resources/`. I am running my tests with these properties in it:
+```
+hire-manager.username=username
+hire-manager.password=password
+wiremock.port=8089
+hire-manager.base-url=http://localhost:8089
+```
+
 ### Powershell (I am on the go, and only had a Windows laptop with me)
 `./gradlew bootRun --args="--spring.profiles.active=local --dry-run"
 `
