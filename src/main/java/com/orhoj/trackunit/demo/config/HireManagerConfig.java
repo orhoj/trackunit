@@ -1,5 +1,8 @@
 package com.orhoj.trackunit.demo.config;
 
+import com.orhoj.demo.hiremanager.api.AccountsApi;
+import com.orhoj.demo.hiremanager.api.HiresApi;
+import com.orhoj.demo.hiremanager.api.MachinesApi;
 import com.orhoj.demo.hiremanager.invoker.ApiClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,5 +28,18 @@ public class HireManagerConfig {
         return apiClient;
     }
 
+    @Bean
+    public HiresApi hiresApi(ApiClient hireManagerApiClient) {
+        return new HiresApi(hireManagerApiClient);
+    }
 
+    @Bean
+    public MachinesApi machinesApi(ApiClient hireManagerApiClient) {
+        return new MachinesApi(hireManagerApiClient);
+    }
+
+    @Bean
+    public AccountsApi accountsApi(ApiClient hireManagerApiClient) {
+        return new AccountsApi(hireManagerApiClient);
+    }
 }

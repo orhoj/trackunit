@@ -1,0 +1,26 @@
+{
+  "page": 1,
+  "pageSize": 50,
+  "totalItems": 1,
+  "lastPage": true,
+  "items": [
+    {
+      "accountNo": "A-3301",
+      "name": "Northfield Groundworks Ltd",
+      "accountType": "TRADE",
+      "contact": {
+        "email": "plant@://example.com",
+        "telephone": "+44 113 496 0123",
+        "fax": null
+      },
+      "address": {
+        "line1": "Unit 4, Industrial Estate",
+        "city": "Northfield",
+        "postcode": "ZZ1 9AA",
+        "country": "GB"
+      },
+      "currencyCode": "GBP",
+      "modifiedAt": "2026-10-12 14:00:00"
+    }
+  ]
+}

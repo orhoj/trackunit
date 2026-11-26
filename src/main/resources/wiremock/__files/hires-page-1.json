@@ -1,0 +1,48 @@
+{
+  "page": 1,
+  "pageSize": 50,
+  "totalItems": 1,
+  "lastPage": true,
+  "items": [
+    {
+      "hireId": 20417,
+      "hireNumber": "H-100231",
+      "kind": "HIRE",
+      "state": "CONFIRMED",
+      "customer": {
+        "accountNo": "A-3301",
+        "name": "Northfield Groundworks Ltd"
+      },
+      "depotCode": "NORTH",
+      "orderRef": "PO-88213",
+      "siteAddress": {
+        "line1": "14 Quarry Lane",
+        "city": "Northfield",
+        "postcode": "ZZ1 4QL",
+        "country": "GB"
+      },
+      "startDate": "2026-11-02",
+      "startTime": "08:00",
+      "dueBackDate": "2026-12-04",
+      "dueBackTime": "17:00",
+      "closedDate": null,
+      "closedTime": null,
+      "modifiedAt": "2026-11-02 07:41:10",
+      "lines": [
+        {
+          "lineNo": 1,
+          "stockNumber": "EX-0042",
+          "startDate": "2026-11-02",
+          "startTime": "08:00",
+          "dueBackDate": "2026-12-04",
+          "dueBackTime": "17:00",
+          "returnedDate": null,
+          "returnedTime": null,
+          "pickupBooked": false,
+          "ratePeriod": "WEEK",
+          "unitPrice": 540.0
+        }
+      ]
+    }
+  ]
+}

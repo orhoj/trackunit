@@ -1,0 +1,22 @@
+{
+  "page": 1,
+  "pageSize": 50,
+  "totalItems": 1,
+  "lastPage": true,
+  "items": [
+    {
+      "machineId": 1001,
+      "stockNumber": "EX-0042",
+      "serialNumber": "CAT308E2-99481",
+      "categoryCode": "EXC-8T",
+      "make": "Caterpillar",
+      "model": "308E2",
+      "fleet": "HIRE",
+      "state": "ON_HIRE",
+      "depotCode": "NORTH",
+      "availableFrom": "2024-01-15",
+      "disposedOn": null,
+      "modifiedAt": "2026-11-20 09:15:00"
+    }
+  ]
+}
